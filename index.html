@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vault – Multi-Chain Wallet Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Cormorant Garamond', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            vault: {
+              black: '#0A0A0A',
+              dark: '#121212',
+              darker: '#1A1A1A',
+              gray: '#2A2A2A',
+              'gray-light': '#3A3A3A',
+              'text-primary': '#FFFFFF',
+              'text-secondary': '#A0A0A0',
+              'text-tertiary': '#6A6A6A',
+              emerald: '#10B981',
+              'emerald-light': '#34D399',
+              'emerald-dark': '#059669',
+              red: '#EF4444',
+              'red-light': '#F87171',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0A0A0A 0%, #121212 50%, #0F1511 100%);
+      min-height: 100vh;
+    }
+    
+    .glass {
+      background: rgba(26, 26, 26, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .glass-strong {
+      background: rgba(18, 18, 18, 0.8);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+    }
+    
+    .fade-in-delay-1 { animation-delay: 0.1s; }
+    .fade-in-delay-2 { animation-delay: 0.2s; }
+    .fade-in-delay-3 { animation-delay: 0.3s; }
+    .fade-in-delay-4 { animation-delay: 0.4s; }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .counter {
+      animation: countUp 1.2s ease-out forwards;
+    }
+    
+    @keyframes countUp {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .pill-active {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+    
+    .pill-inactive {
+      background: rgba(42, 42, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .pill-inactive:hover {
+      background: rgba(58, 58, 58, 0.6);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    
+    .token-row {
+      transition: all 0.2s ease;
+    }
+    
+    .token-row:hover {
+      background: rgba(255, 255, 255, 0.02);
+      transform: translateX(2px);
+    }
+    
+    .tx-row {
+      transition: all 0.2s ease;
+    }
+    
+    .tx-row:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .chart-container {
+      position: relative;
+    }
+    
+    .donut-segment {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .donut-segment:hover {
+      filter: brightness(1.2);
+      transform: scale(1.02);
+    }
+  </style>
+</head>
+<body class="text-vault-text-primary antialiased">
+  
+  <div class="min-h-screen px-6 py-8 md:px-12 md:py-12">
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Header -->
+      <header class="mb-12 fade-in">
+        <h1 class="font-display text-5xl md:text-6xl font-light tracking-tight mb-2">Vault</h1>
+        <p class="text-vault-text-secondary font-light text-sm tracking-wide">Multi-chain portfolio tracker</p>
+      </header>
+      
+      <!-- Portfolio Summary -->
+      <section class="glass-strong rounded-3xl p-8 md:p-10 mb-8 fade-in fade-in-delay-1">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <!-- Total Value -->
+          <div class="md:col-span-2">
+            <p class="text-vault-text-tertiary text-xs uppercase tracking-widest mb-3 font-medium">Total Portfolio Value</p>
+            <h2 class="font-display text-6xl md:text-7xl font-light mb-4 counter">$124,847.32</h2>
+            <div class="flex items-center gap-3">
+              <span class="text-vault-emerald text-lg font-medium">+$4,281.19</span>
+              <span class="text-vault-emerald text-sm">(+3.55%)</span>
+              <span class="text-vault-text-tertiary text-xs ml-2">24h</span>
+            </div>
+          </div>
+          
+          <!-- Quick Stats -->
+          <div class="flex flex-col justify-center gap-4">
+            <div class="glass rounded-xl p-4">
+              <p class="text-vault-text-tertiary text-xs mb-1">Best Performer</p>
+              <p class="font-medium text-sm">Solana</p>
+              <p class="text-vault-emerald text-xs">+12.4%</p>
+            </div>
+            <div class="glass rounded-xl p-4">
+              <p class="text-vault-text-tertiary text-xs mb-1">Total Chains</p>
+              <p class="font-medium text-sm">3 Networks</p>
+              <p class="text-vault-text-tertiary text-xs">12 Tokens</p>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+      
+      <!-- Chain Filter Pills -->
+      <section class="mb-8 fade-in fade-in-delay-2">
+        <div class="flex flex-wrap gap-3">
+          <button class="pill-active px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-vault-emerald focus:ring-offset-2 focus:ring-offset-vault-black" onclick="filterChain('all')">
+            All Chains
+          </button>
+          <button class="pill-inactive px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 focus:outline-none" onclick="filterChain('ethereum')">
+            Ethereum
+          </button>
+          <button class="pill-inactive px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 focus:outline-none" onclick="filterChain('solana')">
+            Solana
+          </button>
+          <button class="pill-inactive px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 focus:outline-none" onclick="filterChain('bsc')">
+            BSC
+          </button>
+        </div>
+      </section>
+      
+      <!-- Allocation & Holdings Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        
+        <!-- Donut Chart -->
+        <section class="glass-strong rounded-3xl p-8 fade-in fade-in-delay-3">
+          <h3 class="font-display text-2xl font-light mb-6">Allocation</h3>
+          <div class="chart-container flex items-center justify-center mb-6">
+            <svg width="240" height="240" viewBox="0 0 240 240" class="transform -rotate-90">
+              <!-- Ethereum: 45% -->
+              <circle cx="120" cy="120" r="80" fill="none" stroke="#627EEA" stroke-width="40" 
+                      stroke-dasharray="226 502" stroke-dashoffset="0" class="donut-segment" />
+              <!-- Solana: 30% -->
+              <circle cx="120" cy="120" r="80" fill="none" stroke="#14F195" stroke-width="40" 
+                      stroke-dasharray="151 502" stroke-dashoffset="-226" class="donut-segment" />
+              <!-- BSC: 25% -->
+              <circle cx="120" cy="120" r="80" fill="none" stroke="#F3BA2F" stroke-width="40" 
+                      stroke-dasharray="126 502" stroke-dashoffset="-377" class="donut-segment" />
+            </svg>
+          </div>
+          
+          <!-- Legend -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full" style="background: #627EEA;"></div>
+                <span class="text-sm">Ethereum</span>
+              </div>
+              <span class="text-sm font-medium">45%</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full" style="background: #14F195;"></div>
+                <span class="text-sm">Solana</span>
+              </div>
+              <span class="text-sm font-medium">30%</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full" style="background: #F3BA2F;"></div>
+                <span class="text-sm">BSC</span>
+              </div>
+              <span class="text-sm font-medium">25%</span>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Token Holdings Table -->
+        <section class="lg:col-span-2 glass-strong rounded-3xl p-8 fade-in fade-in-delay-3">
+          <h3 class="font-display text-2xl font-light mb-6">Holdings</h3>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-vault-gray-light">
+                  <th class="text-left text-xs text-vault-text-tertiary uppercase tracking-wider pb-3 font-medium">Token</th>
+                  <th class="text-right text-xs text-vault-text-tertiary uppercase tracking-wider pb-3 font-medium">Balance</th>
+                  <th class="text-right text-xs text-vault-text-tertiary uppercase tracking-wider pb-3 font-medium">Price</th>
+                  <th class="text-right text-xs text-vault-text-tertiary uppercase tracking-wider pb-3 font-medium">24h</th>
+                  <th class="text-right text-xs text-vault-text-tertiary uppercase tracking-wider pb-3 font-medium">Value</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-vault-gray" id="tokenTable">
+                <!-- ETH -->
+                <tr class="token-row" data-chain="ethereum">
+                  <td class="py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-sm font-semibold">
+                        Ξ
+                      </div>
+                      <div>
+                        <p class="font-medium text-sm">Ethereum</p>
+                        <p class="text-vault-text-tertiary text-xs">ETH</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-right text-sm">12.4582</td>
+                  <td class="text-right text-sm text-vault-text-secondary">$3,847.21</td>
+                  <td class="text-right text-sm text-vault-emerald">+2.4%</td>
+                  <td class="text-right text-sm font-medium">$47,932.18</td>
+                </tr>
+                
+                <!-- SOL -->
+                <tr class="token-row" data-chain="solana">
+                  <td class="py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-400 flex items-center justify-center text-sm font-semibold">
+                        S
+                      </div>
+                      <div>
+                        <p class="font-medium text-sm">Solana</p>
+                        <p class="text-vault-text-tertiary text-xs">SOL</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-right text-sm">284.72</td>
+                  <td class="text-right text-sm text-vault-text-secondary">$132.45</td>
+                  <td class="text-right text-sm text-vault-emerald">+12.4%</td>
+                  <td class="text-right text-sm font-medium">$37,707.14</td>
+                </tr>
+                
+                <!-- BNB -->
+                <tr class="token-row" data-chain="bsc">
+                  <td class="py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-sm font-semibold text-vault-black">
+                        B
+                      </div>
+                      <div>
+                        <p class="font-medium text-sm">BNB</p>
+                        <p class="text-vault-text-tertiary text-xs">BNB</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-right text-sm">94.38</td>
+                  <td class="text-right text-sm text-vault-text-secondary">$328.71</td>
+                  <td class="text-right text-sm text-vault-red">-1.2%</td>
+                  <td class="text-right text-sm font-medium">$31,028.00</td>
+                </tr>
+                
+                <!-- USDC (Ethereum) -->
+                <tr class="token-row" data-chain="ethereum">
+                  <td class="py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-sm font-semibold">
+                        $
+                      </div>
+                      <div>
+                        <p class="font-medium text-sm">USD Coin</p>
+                        <p class="text-vault-text-tertiary text-xs">USDC</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-right text-sm">8,180.00</td>
+                  <td class="text-right text-sm text-vault-text-secondary">$1.00</td>
+                  <td class="text-right text-sm text-vault-text-secondary">+0.0%</td>
+                  <td class="text-right text-sm font-medium">$8,180.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        
+      </div>
+      
+      <!-- Transaction History -->
+      <section class="glass-strong rounded-3xl p-8 fade-in fade-in-delay-4">
+        <h3 class="font-display text-2xl font-light mb-6">Recent Transactions</h3>
+        
+        <div class="space-y-1">
+          <!-- TX 1 - Receive -->
+          <div class="tx-row flex items-center justify-between py-4 border-b border-vault-gray">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full bg-vault-emerald/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-vault-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium">Received SOL</p>
+                <p class="text-xs text-vault-text-tertiary">From 7xK9...mR4s</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-medium text-vault-emerald">+15.50 SOL</p>
+              <p class="text-xs text-vault-text-tertiary">2 hours ago</p>
+            </div>
+          </div>
+          
+          <!-- TX 2 - Send -->
+          <div class="tx-row flex items-center justify-between py-4 border-b border-vault-gray">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full bg-vault-text-tertiary/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-vault-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium">Sent ETH</p>
+                <p class="text-xs text-vault-text-tertiary">To 0x3f2...B8a1</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-medium text-vault-text-secondary">-0.45 ETH</p>
+              <p class="text-xs text-vault-text-tertiary">5 hours ago</p>
+            </div>
+          </div>
+          
+          <!-- TX 3 - Receive -->
+          <div class="tx-row flex items-center justify-between py-4 border-b border-vault-gray">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full bg-vault-emerald/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-vault-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium">Received BNB</p>
+                <p class="text-xs text-vault-text-tertiary">From 0xC8e...9Fa2</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-medium text-vault-emerald">+25.00 BNB</p>
+              <p class="text-xs text-vault-text-tertiary">1 day ago</p>
+            </div>
+          </div>
+          
+          <!-- TX 4 - Send -->
+          <div class="tx-row flex items-center justify-between py-4 border-b border-vault-gray">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full bg-vault-text-tertiary/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-vault-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium">Sent USDC</p>
+                <p class="text-xs text-vault-text-tertiary">To 0x1A9...cF3e</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-medium text-vault-text-secondary">-500.00 USDC</p>
+              <p class="text-xs text-vault-text-tertiary">2 days ago</p>
+            </div>
+          </div>
+          
+          <!-- TX 5 - Receive -->
+          <div class="tx-row flex items-center justify-between py-4">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full bg-vault-emerald/10 flex items-center justify-center">
+                <svg class="w-5 h-5 text-vault-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium">Received ETH</p>
+                <p class="text-xs text-vault-text-tertiary">From 0x9B7...eD4c</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-medium text-vault-emerald">+2.15 ETH</p>
+              <p class="text-xs text-vault-text-tertiary">3 days ago</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+    </div>
+  </div>
+  
+  <script src="script.js"></script>
+</body>
+</html>
